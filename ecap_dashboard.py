@@ -777,8 +777,7 @@ class quarterOverQuarter:
         
         return df
 
-    @staticmethod
-    def filter_df(dataframe, balloon_id):
+    def filter_df(self, dataframe, balloon_id):
         """Exclude from Pandas political risk unknown 
         and leaves only Specific Balloon ID
         
@@ -788,18 +787,61 @@ class quarterOverQuarter:
             dataframe to be filtered
         """
 
-        df = dataframe
+        df = dataframe.copy()
 
-        political = df['MODEL_SUB_TYPE'].str.contains('CI_POL_UNK')
-        only_cedant = df['CUSTOMER_ID'] == balloon_id
+        df = df.loc[df['CUSTOMER_ID'] == balloon_id]
 
-        df = df.loc[(~political) & (only_cedant)]
+        if self.product_type == 'credit':
+            # Set TPE to 0 to be able to groupby ALIAS_ID
+            df.loc[
+                df['MODEL_SUB_TYPE'].isin(['CI_POL_KN', 'CI_POL_UNK']),
+                'CREDIT_LIMIT_NET_EXPOSURE'
+            ] = 0
+
+            # Set PD to 0 to be able to groupby ALIAS_ID
+            df.loc[
+                df['MODEL_SUB_TYPE'].isin(['CI_POL_KN', 'CI_POL_UNK']),
+                'ULTIMATE_POD'
+            ] = 0
+
+            df = df.groupby(by='ALIAS_ID').sum().reset_index()
+
+            # Groupby loses all str fields. Now we have to bring it back
+            # Filter out all POL ALIAS_ID's to avoid duplicates
+            df_info = dataframe.copy()
+            df_info = df_info.loc[
+                (df_info['CUSTOMER_ID'] == balloon_id)
+                & (~df_info['MODEL_SUB_TYPE'].isin(
+                    ['CI_POL_UNK', 'CI_POL_KN']
+                ))
+            ]
+
+            df_info = df_info[[
+                'ALIAS_ID',
+                'ULTIMATE_ID',
+                'CUSTOMER_ID',
+                'CONTRACT_ID',
+                'ULTIMATE_NAME',
+                'ULTIMATE_RATING_TYPE',
+                'ULTIMATE_RATING',
+                'MODEL_SUB_TYPE',
+                'ULTIMATE_ISO_COUNTRY',
+
+            ]]
+
+            df = df.merge(df_info, on='ALIAS_ID')
+        
+        elif self.product_type == 'bond':
+            political = df['MODEL_SUB_TYPE'].str.contains('CI_POL_UNK')
+            df = df.loc[~political]
         
         return df
     
     def format_merged_deep_dive(self, dataframe):
         
         df = dataframe
+        cols_to_rename = quarterOverQuarter.cols_to_rename.copy()
+        col_order = quarterOverQuarter.col_order.copy()
 
         df.drop(quarterOverQuarter.cols_to_drop, axis=1, inplace=True)
 
@@ -816,12 +858,12 @@ class quarterOverQuarter:
             cols_to_rename['RSQUARED New'] = 'New RSquared'
             cols_to_rename['RSQUARED Old'] = 'Old RSquared'
 
-            quarterOverQuarter.col_order.append([
+            col_order.extend([
                 'New RSquared',
                 'Old RSquared'
             ])
         
-        df.rename(columns=quarterOverQuarter.cols_to_rename, inplace=True)
+        df.rename(columns=cols_to_rename, inplace=True)
 
         # Just initialize the columns with value Zero to avoid pandas.insert
         # errors
@@ -829,7 +871,7 @@ class quarterOverQuarter:
         df['∆ Exp'] = 0
         df['∆ ECap'] = 0
 
-        return df[quarterOverQuarter.col_order]
+        return df[col_order]
     
     @staticmethod
     def insert_calculation_cols(dataframe):
