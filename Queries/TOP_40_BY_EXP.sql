@@ -74,7 +74,7 @@ FROM
                         DISTINCT b.ULTIMATE_ID AS POL_ULTIMATE_ID,
                         SUM(b.EC_CONSUMPTION_ND) AS POL_ECAP -- Extract of political exposure aggregated at parent level
                     FROM
-                        CALC6724.SO_REPORTING -- This should correspond to the new schema
+                        CALC6724.SO_REPORTING b -- This should correspond to the new schema
                     WHERE
                         b.MODEL_TYPE = 'IR'
                         AND b.MODEL_SUB_TYPE = 'CI_POL_KN'
