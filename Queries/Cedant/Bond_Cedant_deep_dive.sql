@@ -22,14 +22,14 @@ FROM
             (
                 SELECT
                     ALIAS_ID AS ALIAS_ID_OLD,
-                    ULTIMATE_NAME as PARENT_NAME_OLD,
+                    TRIM('+' FROM (TRIM('"' FROM (SUBSTR(ULTIMATE_NAME, 0, 70))))) as PARENT_NAME_OLD,
                     SUM(CREDIT_LIMIT_NET_EXPOSURE * ULTIMATE_POD) / SUM(CREDIT_LIMIT_NET_EXPOSURE) AS OLD_PD,
                     SUM(CREDIT_LIMIT_NET_EXPOSURE) AS OLD_EXP,
                     SUM(EC_CONSUMPTION_ND) AS OLD_ECAP,
                     ULTIMATE_RATING_TYPE AS OLD_RATING_TYPE,
                     ULTIMATE_RATING AS OLD_RATING
                 FROM
-                    CALC6619.SO_REPORTING -- old quarter --
+                    CALCXXXX.SO_REPORTING -- OLD QUARTER --
                 WHERE
                     MODEL_TYPE LIKE 'IR'
                     AND MODEL_SUB_TYPE LIKE 'BO_%'
@@ -42,14 +42,14 @@ FROM
             ) x FULL OUTER JOIN (
                 SELECT
                     ALIAS_ID AS ALIAS_ID_NEW,
-                    ULTIMATE_NAME as PARENT_NAME_NEW,
+                    TRIM('+' FROM (TRIM('"' FROM (SUBSTR(ULTIMATE_NAME, 0, 70))))) as PARENT_NAME_NEW,
                     SUM(CREDIT_LIMIT_NET_EXPOSURE * ULTIMATE_POD) / SUM(CREDIT_LIMIT_NET_EXPOSURE) AS NEW_PD,
                     SUM(CREDIT_LIMIT_NET_EXPOSURE) AS NEW_EXP,
                     SUM(EC_CONSUMPTION_ND) AS NEW_ECAP,
                     ULTIMATE_RATING_TYPE AS NEW_RATING_TYPE,
                     ULTIMATE_RATING AS NEW_RATING
                 FROM
-                    CALC6673.SO_REPORTING -- new quarter --
+                    CALCXXXX.SO_REPORTING -- NEW QUARTER --
                 WHERE
                     MODEL_TYPE LIKE 'IR'
                     AND MODEL_SUB_TYPE LIKE 'BO_%'
