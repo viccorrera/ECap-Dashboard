@@ -35,7 +35,7 @@ FROM
                     )
                 WHERE
                     ROWNUM <= 40
-            ) new
+            ) x
             LEFT JOIN (
                 select
                     ULTIMATE_ID AS ULTIMATE_ID_HELPER,
@@ -51,5 +51,5 @@ FROM
                 where
                     MODEL_TYPE LIKE 'IR'
                     and ULTIMATE_RATING_TYPE LIKE 'ADV'
-            ) old ON new.ULTIMATE_ID = old.ULTIMATE_ID_HELPER
+            ) y ON x.ULTIMATE_ID = y.ULTIMATE_ID_HELPER
     )
