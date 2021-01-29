@@ -45,4 +45,4 @@ FROM
             ) DESC
     )
 WHERE
-    ROWNUM <= 20
+    ROWNUM <= 40
