@@ -82,7 +82,8 @@ FROM
                     ) y on x.OLD_ULTIMATE_ID = y.NEW_ULTIMATE_ID
             )
         ORDER BY
-            NEW_ECAP DESC
+            NEW_ECAP DESC -- Top 40 by ECap --
+            --NEW_EXP DESC  -- Top 40 by Exposure --
     )
 WHERE
     ROWNUM <= 40
