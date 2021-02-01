@@ -1,141 +1,88 @@
 SELECT
-    ULTIMATE_ID_NEW,
-    ULTIMATE_NAME_NEW,
-    NO_CUSTOMERS_OLD,
-    NO_CUSTOMERS_NEW,
-    PD_OLD,
-    PD_NEW,
-    CASE
-        WHEN PD_OLD IS NULL THEN PD_NEW
-        ELSE PD_NEW - PD_OLD
-    END AS PD_DELTA,
-    EXPOSURE_OLD,
-    EXPOSURE_NEW,
-    CASE
-        WHEN EXPOSURE_OLD IS NULL THEN EXPOSURE_NEW
-        ELSE EXPOSURE_NEW - EXPOSURE_OLD
-    END AS EXP_DELTA,
-    ECAP_OLD,
-    ECAP_NEW,
-    CASE
-        WHEN ECAP_OLD IS NULL THEN ECAP_NEW
-        ELSE ECAP_NEW - ECAP_OLD
-    END AS ECAP_DELTA,
-    ULTIMATE_RATING_TYPE_OLD,
-    ULTIMATE_RATING_OLD,
-    ULTIMATE_RATING_TYPE_NEW,
-    ULTIMATE_RATING_NEW,
-    ECAP_OLD / EXPOSURE_OLD as Ecap_TPE_OLD,
-    ECAP_NEW / EXPOSURE_NEW as Ecap_TPE_NEW
+    *
 FROM
-    (
-        (
-            WITH INRE_COM_DATA_NEW AS (
-                -- Extract of commercial exposure and ECAP aggregated at parent level
-                SELECT
-                    DISTINCT ULTIMATE_ID,
-                    ULTIMATE_NAME,
-                    ULTIMATE_RATING,
-                    ULTIMATE_RATING_TYPE,
-                    COUNT(DISTINCT(CUSTOMER_ID)) AS No_Customers,
-                    SUM(EC_CONSUMPTION_ND) AS ECAP,
-                    SUM(CREDIT_LIMIT_NET_EXPOSURE) AS EXPOSURE,
-                    SUM(CREDIT_LIMIT_NET_EXPOSURE * ULTIMATE_POD) / SUM(CREDIT_LIMIT_NET_EXPOSURE) AS PD
-                FROM
-                    CALCXXXX.SO_REPORTING -- This should correspond to the new schema
-                WHERE
-                    model_type = 'IR'
-                    AND MODEL_SUB_TYPE IN ('CI_COM_KN', 'BO_COM_KN')
-                GROUP BY
-                    ULTIMATE_ID,
-                    ULTIMATE_NAME,
-                    ULTIMATE_RATING,
-                    ULTIMATE_RATING_TYPE
-            )
-            SELECT
-                a.ULTIMATE_ID AS ULTIMATE_ID_NEW,
-                a.ULTIMATE_NAME AS ULTIMATE_NAME_NEW,
-                a.ULTIMATE_RATING_TYPE AS ULTIMATE_RATING_TYPE_NEW,
-                a.ULTIMATE_RATING AS ULTIMATE_RATING_NEW,
-                a.PD AS PD_NEW,
-                a.NO_CUSTOMERS AS No_CUSTOMERS_NEW,
-                a.EXPOSURE AS EXPOSURE_NEW,
-                a.ECAP AS COM_ECAP_NEW,
-                POL_ECAP AS POL_ECAP_NEW,
-                CASE
-                    WHEN POL_ECAP IS NULL THEN ECAP
-                    ELSE ECAP + POL_ECAP
-                END AS ECAP_NEW -- Adding political exposure extracted below to the above commercial exposure
-            FROM
-                INRE_COM_DATA_NEW a
-                LEFT JOIN (
-                    SELECT
-                        DISTINCT b.ULTIMATE_ID AS POL_ULTIMATE_ID,
-                        SUM(b.EC_CONSUMPTION_ND) AS POL_ECAP -- Extract of political exposure aggregated at parent level
-                    FROM
-                        CALCXXXX.SO_REPORTING -- This should correspond to the new schema
-                    WHERE
-                        b.MODEL_TYPE = 'IR'
-                        AND b.MODEL_SUB_TYPE = 'CI_POL_KN'
-                    GROUP BY
-                        b.ULTIMATE_ID
-                ) ON a.ULTIMATE_ID = POL_ULTIMATE_ID
-            ORDER BY
-                ECAP_NEW DESC -- Ordering resulting ECAP by descending order which will allow us to use the function ROWNUM to extract the top 40 rows (see last line of query)
-        )
-        LEFT JOIN (
-            -- Joining in data from previous position
-            WITH INRE_COM_DATA_OLD AS (
-                SELECT
-                    DISTINCT -- this query aggregates ECAP and Exposure at parent level, ordered by decreasing ECAP consumption
-                    ULTIMATE_ID,
-                    ULTIMATE_NAME,
-                    ULTIMATE_RATING,
-                    ULTIMATE_RATING_TYPE,
-                    COUNT(DISTINCT(CUSTOMER_ID)) AS No_Customers,
-                    SUM(EC_CONSUMPTION_ND) AS ECAP,
-                    SUM(CREDIT_LIMIT_NET_EXPOSURE) AS EXPOSURE,
-                    SUM(CREDIT_LIMIT_NET_EXPOSURE * ULTIMATE_POD) / SUM(CREDIT_LIMIT_NET_EXPOSURE) AS PD
-                FROM
-                    CALCXXXX.SO_REPORTING -- This should correspond to the old schema
-                WHERE
-                    model_type = 'IR'
-                    AND MODEL_SUB_TYPE IN ('CI_COM_KN', 'BO_COM_KN')
-                GROUP BY
-                    ULTIMATE_ID,
-                    ULTIMATE_NAME,
-                    ULTIMATE_RATING,
-                    ULTIMATE_RATING_TYPE
-            )
-            SELECT
-                c.ULTIMATE_ID AS ULTIMATE_ID_OLD,
-                c.ULTIMATE_NAME AS ULTIMATE_NAME_OLD,
-                c.ULTIMATE_RATING_TYPE AS ULTIMATE_RATING_TYPE_OLD,
-                c.ULTIMATE_RATING AS ULTIMATE_RATING_OLD,
-                c.PD AS PD_OLD,
-                c.NO_CUSTOMERS AS No_CUSTOMERS_OLD,
-                c.EXPOSURE AS EXPOSURE_OLD,
-                c.ECAP AS COM_ECAP_OLD,
-                POL_ECAP AS POL_ECAP_OLD,
-                CASE
-                    WHEN POL_ECAP IS NULL THEN ECAP
-                    ELSE ECAP + POL_ECAP
-                END AS ECAP_OLD
-            FROM
-                INRE_COM_DATA_OLD c
-                LEFT JOIN (
-                    SELECT
-                        DISTINCT d.ULTIMATE_ID AS POL_ULTIMATE_ID,
-                        SUM(d.EC_CONSUMPTION_ND) AS POL_ECAP
-                    FROM
-                        CALCXXXX.SO_REPORTING -- This should correspond to the old schema
-                    WHERE
-                        d.MODEL_TYPE = 'IR'
-                        AND d.MODEL_SUB_TYPE = 'CI_POL_KN'
-                    GROUP BY
-                        d.ULTIMATE_ID
-                ) ON c.ULTIMATE_ID = POL_ULTIMATE_ID
-        ) ON ULTIMATE_ID_NEW = ULTIMATE_ID_OLD
-    )
+    (
+        SELECT
+            NVL(OLD_ULTIMATE_ID, NEW_ULTIMATE_ID) AS ALIAS_ID,
+            NVL(OLD_PARENT_NAME, NEW_PARENT_NAME) AS PARENT_NAME,
+            OLD_NO_CUSTOMERS,
+            NEW_NO_CUSTOMERS,
+            NVL(OLD_PD, 0) AS OLD_PD,
+            NVL(NEW_PD, 0) AS NEW_PD,
+            NVL(NEW_PD, 0) - NVL(OLD_PD, 0) AS DELTA_PD,
+            NVL(OLD_EXP, 0) AS OLD_EXP,
+            NVL(NEW_EXP, 0) AS NEW_EXP,
+            NVL(NEW_EXP, 0) - NVL(OLD_EXP, 0) AS DELTA_EXP,
+            NVL(OLD_ECAP, 0) AS OLD_ECAP,
+            NVL(NEW_ECAP, 0) AS NEW_ECAP,
+            NVL(NEW_ECAP, 0) - NVL(OLD_ECAP, 0) AS DELTA_ECAP,
+            OLD_RATING_TYPE,
+            OLD_RATING,
+            NEW_RATING_TYPE,
+            NEW_RATING,
+            NVL(OLD_ECAP, 0) / NVL(OLD_EXP, 1) AS OLD_ECAP_TPE_RATIO,
+            NVL(NEW_ECAP, 0) / NVL(NEW_EXP, 1) AS NEW_ECAP_TPE_RATIO
+        FROM
+            (
+                SELECT
+                    *
+                FROM
+                    (
+                        SELECT
+                            ULTIMATE_ID AS OLD_ULTIMATE_ID,
+                            SUBSTR(ULTIMATE_NAME, 0, 70) as OLD_PARENT_NAME,
+                            COUNT(DISTINCT(CUSTOMER_ID)) AS OLD_NO_CUSTOMERS,
+                            AVG(
+                                CASE
+                                    WHEN MODEL_SUB_TYPE LIKE '%_COM_%' THEN ULTIMATE_POD
+                                END
+                            ) AS OLD_PD,
+                            SUM(
+                                CASE
+                                    WHEN MODEL_SUB_TYPE LIKE '%_COM_%' THEN CREDIT_LIMIT_NET_EXPOSURE
+                                END
+                            ) AS OLD_EXP,
+                            SUM(EC_CONSUMPTION_ND) AS OLD_ECAP,
+                            MAX(ULTIMATE_RATING_TYPE) AS OLD_RATING_TYPE,
+                            MAX(ULTIMATE_RATING) AS OLD_RATING
+                        FROM
+                            CALCXXXX.SO_REPORTING -- UPDATE OLD QUARTER --
+                        WHERE
+                            MODEL_TYPE LIKE 'IR'
+                            AND MODEL_SUB_TYPE LIKE '%_KN'
+                        GROUP BY
+                            ULTIMATE_ID,
+                            SUBSTR(ULTIMATE_NAME, 0, 70)
+                    ) x FULL OUTER JOIN (
+                        SELECT
+                            ULTIMATE_ID AS NEW_ULTIMATE_ID,
+                            SUBSTR(ULTIMATE_NAME, 0, 70) as NEW_PARENT_NAME,
+                            COUNT(DISTINCT(CUSTOMER_ID)) AS NEW_NO_CUSTOMERS,
+                            AVG(
+                                CASE
+                                    WHEN MODEL_SUB_TYPE LIKE '%_COM_%' THEN ULTIMATE_POD
+                                END
+                            ) AS NEW_PD,
+                            SUM(
+                                CASE
+                                    WHEN MODEL_SUB_TYPE LIKE '%_COM_%' THEN CREDIT_LIMIT_NET_EXPOSURE
+                                END
+                            ) AS NEW_EXP,
+                            SUM(EC_CONSUMPTION_ND) AS NEW_ECAP,
+                            MAX(ULTIMATE_RATING_TYPE) AS NEW_RATING_TYPE,
+                            MAX(ULTIMATE_RATING) AS NEW_RATING
+                        FROM
+                            CALCXXXX.SO_REPORTING -- UPDATE NEW QUARTER --
+                        WHERE
+                            MODEL_TYPE LIKE 'IR'
+                            AND MODEL_SUB_TYPE LIKE '%_KN'
+                        GROUP BY
+                            ULTIMATE_ID,
+                            SUBSTR(ULTIMATE_NAME, 0, 70)
+                    ) y on x.OLD_ULTIMATE_ID = y.NEW_ULTIMATE_ID
+            )
+        ORDER BY
+            NEW_ECAP DESC
+    )
 WHERE
-    ROWNUM <= 40;
+    ROWNUM <= 40
