@@ -3,9 +3,9 @@ SELECT
 FROM
     (
         SELECT
+            ULTIMATE_ID,
             ULTIMATE_NAME,
             ULTIMATE_COUNTRY,
-            ULTIMATE_ID,
             COUNT(
                 DISTINCT CASE
                     WHEN MODEL_SUB_TYPE LIKE '%_COM_KN'
@@ -57,9 +57,10 @@ FROM
         FROM
             CALCXXXX.SO_REPORTING
         GROUP BY
+            ULTIMATE_ID,
             ULTIMATE_NAME,
-            ULTIMATE_COUNTRY,
-            ULTIMATE_ID
+            ULTIMATE_COUNTRY
+            
         ORDER BY
             SUM(
                 CASE
@@ -71,4 +72,4 @@ FROM
             ) DESC
     )
 WHERE
-    ROWNUM <= 40
+    ROWNUM <= 30
