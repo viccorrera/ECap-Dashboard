@@ -86,4 +86,4 @@ FROM
             --NEW_EXP DESC  -- Top 40 by Exposure --
     )
 WHERE
-    ROWNUM <= 40
+    ROWNUM <= 30
