@@ -13,7 +13,7 @@ FROM
                     SUBSTR(CONTRACT_ID, 0, 5) AS OLD_COMP_ID,
                     SUM(EC_CONSUMPTION_ND) AS OLD_ECAP
                 FROM
-                    CALC6673.SO_REPORTING -- UPDATE OLD QUARTER --
+                    CALCXXXX.SO_REPORTING -- UPDATE OLD QUARTER --
                 WHERE
                     MODEL_TYPE = 'IR'
                     AND MODEL_SUB_TYPE LIKE 'CI_%'
@@ -24,7 +24,7 @@ FROM
                     SUBSTR(CONTRACT_ID, 0, 5) AS NEW_COMP_ID,
                     SUM(EC_CONSUMPTION_ND) AS NEW_ECAP
                 FROM
-                    CALC6724.SO_REPORTING -- UPDATE NEW QUARTER --
+                    CALCXXXX.SO_REPORTING -- UPDATE NEW QUARTER --
                 WHERE
                     MODEL_TYPE = 'IR'
                     AND MODEL_SUB_TYPE LIKE 'CI_%'
