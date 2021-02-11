@@ -32,7 +32,6 @@ FROM
                     CALCXXXX.SO_REPORTING -- OLD QUARTER --
                 WHERE
                     MODEL_TYPE LIKE 'IR'
-                    AND MODEL_SUB_TYPE LIKE 'BO_%'
                     AND CUSTOMER_ID = '' -- Customer ID
                 GROUP BY
                     ALIAS_ID,
@@ -52,7 +51,6 @@ FROM
                     CALCXXXX.SO_REPORTING -- NEW QUARTER --
                 WHERE
                     MODEL_TYPE LIKE 'IR'
-                    AND MODEL_SUB_TYPE LIKE 'BO_%'
                     AND CUSTOMER_ID = '' -- Customer ID
                 GROUP BY
                     ALIAS_ID,
