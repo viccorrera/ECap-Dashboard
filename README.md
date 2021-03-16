@@ -3,10 +3,12 @@
 
 The runs below are **only** for **ECap Dashboards** (without Reserve Risk):
 
-2020 Q1 - 6573
-2020 Q2 - 6619
-2020 Q3 - 6673
-2020 Q4 - 6724
+| Period | Run (without RR) |
+|:------:|:---:|
+|2020 Q1 | 6573|
+|2020 Q2 | 6619|
+|2020 Q3 | 6673|
+|2020 Q4 | 6724|
 
 ## SO_REPORTING
 ### Columns
