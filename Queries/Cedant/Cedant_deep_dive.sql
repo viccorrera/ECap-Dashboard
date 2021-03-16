@@ -1,5 +1,5 @@
 SELECT
-    NVL(OLD_ALIAS_ID, NEW_ALIAS_ID) AS ALIAS_ID,
+    NVL(OLD_ULTIMATE_ID, NEW_ULTIMATE_ID) AS ALIAS_ID,
     NVL(OLD_PARENT_NAME, NEW_PARENT_NAME) AS PARENT_NAME,
     OLD_PD,
     NEW_PD,
@@ -24,7 +24,7 @@ FROM
         FROM
             (
                 SELECT
-                    ALIAS_ID AS OLD_ALIAS_ID,
+                    ULTIMATE_ID AS OLD_ULTIMATE_ID,
                     TRIM('+' FROM (TRIM('"' FROM (SUBSTR(ULTIMATE_NAME, 0, 70))))) as OLD_PARENT_NAME,
                     SUM(
                         CASE
@@ -54,7 +54,7 @@ FROM
                     ULTIMATE_NAME
             ) x FULL OUTER JOIN (
                 SELECT
-                    ALIAS_ID AS NEW_ALIAS_ID,
+                    ULTIMATE_ID AS NEW_ULTIMATE_ID,
                     TRIM('+' FROM (TRIM('"' FROM (SUBSTR(ULTIMATE_NAME, 0, 70))))) as NEW_PARENT_NAME,
                     SUM(
                         CASE
@@ -82,5 +82,5 @@ FROM
                 GROUP BY
                     ALIAS_ID,
                     ULTIMATE_NAME
-            ) y on x.OLD_ALIAS_ID = y.NEW_ALIAS_ID
+            ) y on x.OLD_ULTIMATE_ID = y.NEW_ULTIMATE_ID
     )
