@@ -1,7 +1,11 @@
 # ECap-Dashboard
+## Update 2021Q1
+From 2021Q1 onwards, we will be using the Reporting Runs with Reserve Risks (RR)  
+due to changes in how we deal with diversification benefits.
+
 ## RUNS
 
-The runs below are **only** for **ECap Dashboards** (without Reserve Risk):
+The runs below are **only** for **ECap Dashboards** (without RR):
 
 | Period | Run (without RR) |
 |:------:|:---:|
