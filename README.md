@@ -15,4 +15,4 @@ The runs below are **only** for **ECap Dashboards** (without Reserve Risk):
 ## SO_REPORTING
 ### Columns
 - `EC_CONSUMPTION_GR`: ECap allocation for QS only
-- `EC_CONSUMPTION_ND`: ECap allocation for the QS + any associated layers of XL
+- `EC_CONSUMPTION_ND`: ECap allocation for the QS + any associated layers of XL. __**We use this one**__.
