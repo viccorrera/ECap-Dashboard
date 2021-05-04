@@ -20,7 +20,9 @@ FROM
                         SELECT
                             ULTIMATE_ID
                         FROM
+                            /*Update below with Latest RUN*/
                             CALCXXXX.SO_REPORTING
+                            /*Update above with Latest RUN*/
                         GROUP BY
                             ULTIMATE_ID
                         ORDER BY
@@ -47,7 +49,9 @@ FROM
                     CREDIT_LIMIT_NET_EXPOSURE as EXPOSURE,
                     EC_CONSUMPTION_ND as ECAP
                 from
+                    /*Update below with Latest RUN*/
                     CALCXXXX.SO_REPORTING
+                    /*Update above with Latest RUN*/
                 where
                     MODEL_TYPE LIKE 'IR'
                     and ULTIMATE_RATING_TYPE LIKE 'ADV'
