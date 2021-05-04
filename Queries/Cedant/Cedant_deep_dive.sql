@@ -45,12 +45,16 @@ FROM
                         END
                     ) AS OLD_RSQUARED
                 FROM
-                    CALCXXXX.SO_REPORTING -- UPDATE OLD QUARTER --
+                    /*Update below with OLD RUN*/
+                    CALCXXXX.SO_REPORTING
+                    /*Update above with OLD RUN*/
                 WHERE
                     MODEL_TYPE LIKE 'IR'
-                    AND CUSTOMER_ID = '' -- UPDATE Customer ID
+                    /*Update below with Balloon ID*/
+                    AND CUSTOMER_ID = ''
+                    /*Update above with Balloon ID*/
                 GROUP BY
-                    ALIAS_ID,
+                    ULTIMATE_ID,
                     ULTIMATE_NAME
             ) x FULL OUTER JOIN (
                 SELECT
@@ -75,12 +79,16 @@ FROM
                         END
                     ) AS NEW_RSQUARED
                 FROM
-                    CALCXXXX.SO_REPORTING -- UPDATE NEW QUARTER --
+                    /*Update below with NEW RUN*/
+                    CALCXXXX.SO_REPORTING
+                    /*Update above with NEW RUN*/
                 WHERE
                     MODEL_TYPE LIKE 'IR'
-                    AND CUSTOMER_ID = '' -- UPDATE Customer ID
+                    /*Update below with Balloon ID*/
+                    AND CUSTOMER_ID = ''
+                    /*Update above with Balloon ID*/
                 GROUP BY
-                    ALIAS_ID,
+                    ULTIMATE_ID,
                     ULTIMATE_NAME
             ) y on x.OLD_ULTIMATE_ID = y.NEW_ULTIMATE_ID
     )
