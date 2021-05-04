@@ -6,7 +6,8 @@ SELECT
         END
     ) AS TPE,
     SUM(a.EC_CONSUMPTION_ND) as ECAP,
-    -- UNRATED SECTION--
+    /*----------------*/
+    /*UNRATED SECTION*/
     SUM(
         CASE
             WHEN a.MODEL_SUB_TYPE LIKE '%_COM_KN'
@@ -57,21 +58,22 @@ SELECT
             ELSE 0
         END
     ) AS UNRATED_ECAP,
-    -- ADV RATE SECTION--
+    /*----------------*/
+    /*ADV RATE SECTION*/
     SUM(
         CASE
             WHEN a.MODEL_SUB_TYPE LIKE '%_COM_KN'
             AND a.ULTIMATE_RATING_TYPE LIKE 'ADV' THEN a.CREDIT_LIMIT_NET_EXPOSURE
             ELSE 0
         END
-    ) AS ADV_RATE_EXP,
+    ) AS ADV_RATED_EXP,
     COUNT(
         DISTINCT CASE
             WHEN a.MODEL_SUB_TYPE LIKE '%_COM_KN'
             AND a.ULTIMATE_RATING_TYPE LIKE 'ADV' THEN ULTIMATE_ID
             ELSE ''
         END
-    ) AS ADV_RATE_BUYERS,
+    ) AS ADV_RATED_BUYERS,
     (
         SUM(
             CASE
@@ -86,28 +88,28 @@ SELECT
                 ELSE 0
             END
         )
-    ) AS UNRATED_BUYERS_WEIGHTED_AV_PD,
+    ) AS ADV_RATED_BUYERS_WEIGHTED_AV_PD,
     MIN(
         CASE
             WHEN a.MODEL_SUB_TYPE LIKE '%_COM_KN'
             AND a.ULTIMATE_RATING_TYPE LIKE 'ADV' THEN a.ULTIMATE_POD
             ELSE 100
         END
-    ) AS UNRATED_MIN_PD,
+    ) AS ADV_RATED_MIN_PD,
     MAX(
         CASE
             WHEN a.MODEL_SUB_TYPE LIKE '%_COM_KN'
             AND a.ULTIMATE_RATING_TYPE LIKE 'ADV' THEN a.ULTIMATE_POD
             ELSE 0
         END
-    ) AS UNRATED_MAX_PD,
+    ) AS ADV_RATED_MAX_PD,
     SUM(
         CASE
             WHEN a.MODEL_SUB_TYPE LIKE '%_KN'
             AND a.ULTIMATE_RATING_TYPE LIKE 'ADV' THEN a.EC_CONSUMPTION_ND
             ELSE 0
         END
-    ) AS UNRATED_ECAP
+    ) AS ADV_RATED_ECAP
 FROM
     CALCXXXX.SO_REPORTING a  --update CALCRUN --
 WHERE
