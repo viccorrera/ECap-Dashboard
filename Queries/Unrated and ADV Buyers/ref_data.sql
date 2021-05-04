@@ -88,7 +88,7 @@ SELECT
                 ELSE 0
             END
         )
-    ) AS ADV_RATED_BUYERS_WEIGHTED_AV_PD,
+    ) AS ADV_RATED_BUYERS_WEIGHTED_PD,
     MIN(
         CASE
             WHEN a.MODEL_SUB_TYPE LIKE '%_COM_KN'
