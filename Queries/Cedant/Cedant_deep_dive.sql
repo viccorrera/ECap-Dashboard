@@ -26,7 +26,7 @@ FROM
                 SELECT
                     ULTIMATE_ID AS OLD_ULTIMATE_ID,
                     TRIM('+' FROM (TRIM('"' FROM (SUBSTR(ULTIMATE_NAME, 0, 70))))) as OLD_PARENT_NAME,
-                    SUM(
+                    AVG(
                         CASE
                             WHEN MODEL_SUB_TYPE LIKE '%_COM_%' THEN ULTIMATE_POD
                         END
@@ -60,7 +60,7 @@ FROM
                 SELECT
                     ULTIMATE_ID AS NEW_ULTIMATE_ID,
                     TRIM('+' FROM (TRIM('"' FROM (SUBSTR(ULTIMATE_NAME, 0, 70))))) as NEW_PARENT_NAME,
-                    SUM(
+                    AVG(
                         CASE
                             WHEN MODEL_SUB_TYPE LIKE '%_COM_%' THEN ULTIMATE_POD
                         END
